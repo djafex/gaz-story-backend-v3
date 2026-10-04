@@ -1,6 +1,15 @@
 {
-  "name": "gaz-story-studio-backend",
-  "version": "3.0.0",
-  "private": true,
-  "type": "module"
+    "name": "gaz-story-studio-backend",
+      "version": "3.0.0",
+        "private": true,
+          "type": "module",
+            "scripts": {
+                  "build": "echo \"G@z Story Studio build completed\"",
+                      "dev": "vercel dev"
+            },
+              "engines": {
+                    "node": "22.x"
+              }
+}
+            }
 }
