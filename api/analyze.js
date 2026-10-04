@@ -5,4 +5,3 @@ export default function handler(req, res) {
             message: "G@z Story Studio API fonctionne !"
               });
               }
-}
