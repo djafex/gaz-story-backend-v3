@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>TrendStory AI — Générateur de vidéos</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      color: #ffffff;
+    }
+
+    header {
+      padding: 25px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #171722, #0b0b0f);
+      border-bottom: 1px solid #292936;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #f5c542;
+    }
+
+    header p {
+      color: #aaa;
+      margin: 8px 0 0;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 1100px;
+      margin: 30px auto;
+    }
+
+    .card {
+      background: #15151d;
+      border: 1px solid #292936;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #f5c542;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid #363642;
+      background: #0e0e14;
+      color: white;
+      outline: none;
+      margin-bottom: 15px;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #f5c542;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 13px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      margin: 5px;
+    }
+
+    .primary {
+      background: #f5c542;
+      color: #111;
+    }
+
+    .secondary {
+      background: #292936;
+      color: white;
+    }
+
+    .danger {
+      background: #b83232;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .upload-zone {
+      border: 2px dashed #444452;
+      border-radius: 14px;
+      padding: 35px 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .upload-zone:hover {
+      border-color: #f5c542;
+    }
+
+    .upload-zone input {
+      display: none;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+    }
+
+    .scene {
+      background: #0e0e14;
+      border: 1px solid #292936;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .scene img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .scene-number {
+      color: #f5c542;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      background: #0e0e14;
+      border: 1px solid #292936;
+      color: #aaa;
+      margin-top: 15px;
+      white-space: pre-wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #292936;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #f5c542;
+      transition: width 0.3s;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #666;
+      padding: 30px;
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 22px;
+      }
+
+      .container {
+        width: 95%;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎬 TrendStory AI</h1>
+  <p>Transformez vos images en histoires vidéo</p>
+</header>
+
+<main class="container">
+
+  <section class="card">
+    <h2>🔑 Configuration</h2>
+
+    <label for="apiKey">Clé API</label>
+
+    <input
+      type="password"
+      id="apiKey"
+      placeholder="Entrez votre clé API"
+    >
+
+    <button class="primary" onclick="saveApiKey()">
+      💾 Enregistrer la clé
+    </button>
+
+    <button class="secondary" onclick="clearApiKey()">
+      🗑️ Effacer
+    </button>
+
+    <div id="keyStatus" class="status">
+      Aucune clé enregistrée.
+    </div>
+  </section>
+
+
+  <section class="card">
+
+    <h2>📸 Vos images</h2>
+
+    <label class="upload-zone">
+
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        multiple
+        onchange="handleImages(event)"
+      >
+
+      <strong>📁 Cliquez ici pour sélectionner vos images</strong>
+
+      <p style="color:#888;">
+        Vous pouvez sélectionner plusieurs images.
+      </p>
+
+    </label>
+
+    <div id="gallery" class="gallery"></div>
+
+  </section>
+
+
+  <section class="card">
+
+    <h2>📖 Histoire</h2>
+
+    <label for="storyTitle">
+      Titre de l'histoire
+    </label>
+
+    <input
+      type="text"
+      id="storyTitle"
+      placeholder="Exemple : Sami et le secret de la forêt"
+    >
+
+    <label for="storyPrompt">
+      Description générale
+    </label>
+
+    <textarea
+      id="storyPrompt"
+      placeholder="Décrivez ici l'histoire, l'ambiance, les personnages et ce qui doit se passer..."
+    ></textarea>
+
+    <label for="style">
+      Style vidéo
+    </label>
+
+    <select id="style">
+
+      <option value="cinematic">
+        🎬 Cinématique
+      </option>
+
+      <option value="anime">
+        🎨 Anime
+      </option>
+
+      <option value="realistic">
+        📷 Réaliste
+      </option>
+
+      <option value="3d">
+        🧸 Animation 3D
+      </option>
+
+      <option value="fantasy">
+        🏰 Fantasy
+      </option>
+
+    </select>
+
+  </section>
+
+
+  <section class="card">
+
+    <h2>🎞️ Génération</h2>
+
+    <p style="color:#aaa;">
+      Les scènes seront préparées à partir de vos images et de votre histoire.
+    </p>
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        onclick="generateStory()"
+      >
+        🚀 Générer l'histoire
+      </button>
+
+      <button
+        class="danger"
+        onclick="stopGeneration()"
+      >
+        ⛔ Arrêter
+      </button>
+
+    </div>
+
+    <div class="progress" id="progress">
+      <div
+        class="progress-bar"
+        id="progressBar"
+      ></div>
+    </div>
+
+    <div
+      id="status"
+      class="status"
+    >
+      En attente...
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+  TrendStory AI © 2026
+</footer>
+
+
+<script>
+
+let selectedImages = [];
+let generationStopped = false;
+
+
+/* ================================
+   CLÉ API
+================================ */
+
+function saveApiKey() {
+
+  const key = document.getElementById("apiKey").value.trim();
+
+  if (!key) {
+
+    document.getElementById("keyStatus").textContent =
+      "⚠️ Veuillez entrer une clé API.";
+
+    return;
+  }
+
+  localStorage.setItem("trendstory_api_key", key);
+
+  document.getElementById("keyStatus").textContent =
+    "✅ Clé API enregistrée dans ce navigateur.";
+}
+
+
+function clearApiKey() {
+
+  localStorage.removeItem("trendstory_api_key");
+
+  document.getElementById("apiKey").value = "";
+
+  document.getElementById("keyStatus").textContent =
+    "Clé API supprimée.";
+}
+
+
+function loadApiKey() {
+
+  const key =
+    localStorage.getItem("trendstory_api_key");
+
+  if (key) {
+
+    document.getElementById("apiKey").value = key;
+
+    document.getElementById("keyStatus").textContent =
+      "✅ Une clé API est déjà enregistrée.";
+  }
+}
+
+
+/* ================================
+   IMAGES
+================================ */
+
+function handleImages(event) {
+
+  const files = Array.from(event.target.files);
+
+  selectedImages = files;
+
+  displayImages();
+}
+
+
+function displayImages() {
+
+  const gallery =
+    document.getElementById("gallery");
+
+  gallery.innerHTML = "";
+
+  selectedImages.forEach((file, index) => {
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+      const scene =
+        document.createElement("div");
+
+      scene.className = "scene";
+
+      scene.innerHTML = `
+
+        <div class="scene-number">
+          Scène ${index + 1}
+        </div>
+
+        <img
+          src="${e.target.result}"
+          alt="Scène ${index + 1}"
+        >
+
+        <textarea
+          placeholder="Décrivez ce qui doit se passer dans cette scène..."
+          id="prompt-${index}"
+        ></textarea>
+
+      `;
+
+      gallery.appendChild(scene);
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+}
+
+
+/* ================================
+   GÉNÉRATION
+================================ */
+
+async function generateStory() {
+
+  generationStopped = false;
+
+  const status =
+    document.getElementById("status");
+
+  const progress =
+    document.getElementById("progress");
+
+  const progressBar =
+    document.getElementById("progressBar");
+
+  const title =
+    document.getElementById("storyTitle").value.trim();
+
+  const story =
+    document.getElementById("storyPrompt").value.trim();
+
+  const style =
+    document.getElementById("style").value;
+
+  const apiKey =
+    localStorage.getItem("trendstory_api_key");
+
+  if (!apiKey) {
+
+    status.textContent =
+      "⚠️ Veuillez d'abord enregistrer votre clé API.";
+
+    return;
+  }
+
+  if (selectedImages.length === 0) {
+
+    status.textContent =
+      "⚠️ Sélectionnez au moins une image.";
+
+    return;
+  }
+
+  if (!title || !story) {
+
+    status.textContent =
+      "⚠️ Ajoutez un titre et une description de l'histoire.";
+
+    return;
+  }
+
+  progress.style.display = "block";
+
+  progressBar.style.width = "10%";
+
+  status.textContent =
+    "⏳ Préparation de votre histoire...";
+
+
+  const scenes = [];
+
+  for (let i = 0; i < selectedImages.length; i++) {
+
+    const promptElement =
+      document.getElementById(`prompt-${i}`);
+
+    scenes.push({
+
+      scene: i + 1,
+
+      prompt:
+        promptElement
+          ? promptElement.value
+          : "",
+
+      image:
+        selectedImages[i].name
+
+    });
+
+  }
+
+
+  const data = {
+
+    title,
+
+    story,
+
+    style,
+
+    scenes
+
+  };
+
+
+  try {
+
+    /*
+      Connexion future avec notre backend.
+      Le fichier api/analyse.js sera utilisé
+      lorsque le serveur backend sera déployé.
+    */
+
+    progressBar.style.width = "40%";
+
+    status.textContent =
+      "🎬 Histoire préparée.\n\n" +
+      "Nombre de scènes : " +
+      scenes.length +
+      "\nStyle : " +
+      style +
+      "\n\nConnexion au backend...";
+
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 1000)
+    );
+
+
+    if (generationStopped) {
+
+      status.textContent =
+        "⛔ Génération arrêtée.";
+
+      return;
+    }
+
+
+    progressBar.style.width = "70%";
+
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 800)
+    );
+
+
+    if (generationStopped) {
+
+      status.textContent =
+        "⛔ Génération arrêtée.";
+
+      return;
+    }
+
+
+    progressBar.style.width = "100%";
+
+
+    status.textContent =
+      "✅ Projet préparé avec succès !\n\n" +
+      "Le backend vidéo doit maintenant être connecté " +
+      "pour lancer la génération réelle.";
+
+
+    console.log("Données du projet :", data);
+
+  }
+
+  catch(error) {
+
+    console.error(error);
+
+    status.textContent =
+      "❌ Une erreur est survenue : " +
+      error.message;
+
+  }
+
+}
+
+
+/* ================================
+   ARRÊTER
+================================ */
+
+function stopGeneration() {
+
+  generationStopped = true;
+
+  document.getElementById("status").textContent =
+    "⛔ Génération arrêtée.";
+
+}
+
+
+/* ================================
+   INITIALISATION
+================================ */
+
+window.addEventListener(
+  "load",
+  loadApiKey
+);
+
+</script>
+
+</body>
+</html>
