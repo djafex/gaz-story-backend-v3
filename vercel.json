@@ -1,15 +1,4 @@
 {
-    "version": 2,
-      "builds": [
-          {
-                "src": "api/analyse.js",
-                      "use": "@vercel/node"
-                          }
-                            ],
-                              "routes": [
-                                  {
-                                        "src": "/api/analyse",
-                                              "dest": "/api/analyse.js"
-                                                  }
-                                                    ]
-                                                    }
+    "$schema": "https://openapi.vercel.sh/vercel.json"
+    }
+}
